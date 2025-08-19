@@ -3,6 +3,7 @@ package org.example;
 import processing.core.PApplet;
 
 public class Main extends PApplet {
+    private Board board;
     private BoardRenderer boardRenderer;
 
     public void settings() {
@@ -10,7 +11,9 @@ public class Main extends PApplet {
     }
 
     public void setup() {
-        boardRenderer = new BoardRenderer();
+        board = new Board();
+        PieceImages pieceImages = new PieceImages(this);
+        boardRenderer = new BoardRenderer(board, pieceImages);
         noStroke();
     }
 
