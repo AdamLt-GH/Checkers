@@ -48,6 +48,25 @@ public class Board {
         squares[row][col] = piece;
     }
 
+    public void movePiece(int fromRow, int fromCol, int toRow, int toCol) {
+        checkPosition(fromRow, fromCol);
+        checkPosition(toRow, toCol);
+
+        PieceType piece = squares[fromRow][fromCol];
+        squares[fromRow][fromCol] = PieceType.EMPTY;
+        squares[toRow][toCol] = promoteIfNeeded(piece, toRow);
+    }
+
+    private PieceType promoteIfNeeded(PieceType piece, int row) {
+        if (piece == PieceType.BLACK && row == SIZE - 1) {
+            return PieceType.BLACK_KING;
+        }
+        if (piece == PieceType.WHITE && row == 0) {
+            return PieceType.WHITE_KING;
+        }
+        return piece;
+    }
+
     public boolean isInsideBoard(int row, int col) {
         return row >= 0 && row < SIZE && col >= 0 && col < SIZE;
     }
