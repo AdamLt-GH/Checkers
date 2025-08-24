@@ -55,6 +55,12 @@ public class Board {
         PieceType piece = squares[fromRow][fromCol];
         squares[fromRow][fromCol] = PieceType.EMPTY;
         squares[toRow][toCol] = promoteIfNeeded(piece, toRow);
+
+        if (Math.abs(toRow - fromRow) == 2) {
+            int capturedRow = (fromRow + toRow) / 2;
+            int capturedCol = (fromCol + toCol) / 2;
+            squares[capturedRow][capturedCol] = PieceType.EMPTY;
+        }
     }
 
     private PieceType promoteIfNeeded(PieceType piece, int row) {
