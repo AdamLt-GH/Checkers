@@ -3,6 +3,7 @@ package org.example;
 public class Players {
     private final MoveRules rules;
     private boolean blackTurn = true;
+    private boolean continuingCapture;
     private int selectedRow = -1;
     private int selectedCol = -1;
 
@@ -13,6 +14,9 @@ public class Players {
     public boolean selectPiece(Board board, int row, int col) {
         if (!board.isInsideBoard(row, col)) {
             return false;
+        }
+        if (continuingCapture) {
+            return row == selectedRow && col == selectedCol;
         }
 
         PieceType piece = board.getPieceAt(row, col);
@@ -44,12 +48,14 @@ public class Players {
 
         if (wasCapture && rules.canCaptureFrom(board, toRow, toCol, blackTurn)) {
             // keep this piece selected until all its captures are done
+            continuingCapture = true;
             selectedRow = toRow;
             selectedCol = toCol;
             return true;
         }
 
         blackTurn = !blackTurn;
+        continuingCapture = false;
         clearSelection();
         return true;
     }

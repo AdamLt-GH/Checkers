@@ -84,6 +84,21 @@ class PlayersTest {
         assertFalse(players.hasSelectedPiece());
     }
 
+    @Test
+    void anotherPieceCannotBePickedDuringMultipleCaptures() {
+        board.setPieceAt(2, 1, PieceType.BLACK);
+        board.setPieceAt(3, 2, PieceType.WHITE);
+        board.setPieceAt(5, 4, PieceType.WHITE);
+        board.setPieceAt(4, 7, PieceType.BLACK);
+        board.setPieceAt(5, 6, PieceType.WHITE);
+        players.selectPiece(board, 2, 1);
+        players.moveSelectedPiece(board, 4, 3);
+
+        assertFalse(players.selectPiece(board, 4, 7));
+        assertEquals(4, players.getSelectedRow());
+        assertEquals(3, players.getSelectedCol());
+    }
+
     private void clearBoard() {
         for (int row = 0; row < Board.SIZE; row++) {
             for (int col = 0; col < Board.SIZE; col++) {
