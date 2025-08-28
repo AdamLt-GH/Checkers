@@ -8,12 +8,19 @@ version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jogamp.org/deployment/maven/' }
 }
 
 dependencies {
-    implementation 'org.processing:core:3.3.7'
+    implementation 'org.processing:core:4.4.7'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 application {
