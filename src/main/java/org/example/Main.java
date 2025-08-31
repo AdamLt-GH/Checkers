@@ -5,17 +5,20 @@ import processing.core.PApplet;
 public class Main extends PApplet {
     private enum GameMode {
         MENU,
-        PLAYER_VS_PLAYER
+        PLAYER_VS_PLAYER,
+        PLAYER_VS_CPU
     }
 
     private static final int BUTTON_X = 180;
-    private static final int BUTTON_Y = 280;
     private static final int BUTTON_WIDTH = 280;
     private static final int BUTTON_HEIGHT = 60;
+    private static final int PLAYER_BUTTON_Y = 250;
+    private static final int CPU_BUTTON_Y = 340;
 
     private Board board;
     private BoardRenderer boardRenderer;
     private Players players;
+    private CpuPlayer cpuPlayer;
     private GameMode gameMode = GameMode.MENU;
 
     public void settings() {
@@ -27,6 +30,7 @@ public class Main extends PApplet {
         PieceImages pieceImages = new PieceImages(this);
         boardRenderer = new BoardRenderer(board, pieceImages);
         players = new Players(new MoveRules());
+        cpuPlayer = new CpuPlayer(new MoveRules());
         noStroke();
     }
 
@@ -37,15 +41,24 @@ public class Main extends PApplet {
             return;
         }
 
+        if (gameMode == GameMode.PLAYER_VS_CPU && !players.isBlackTurn()) {
+            cpuPlayer.takeTurn(board, players);
+        }
         boardRenderer.draw(this);
         drawSelectedPiece();
     }
 
     public void mousePressed() {
         if (gameMode == GameMode.MENU) {
-            if (insidePlayButton(mouseX, mouseY)) {
-                startPlayerGame();
+            if (insideButton(mouseX, mouseY, PLAYER_BUTTON_Y)) {
+                startGame(GameMode.PLAYER_VS_PLAYER);
+            } else if (insideButton(mouseX, mouseY, CPU_BUTTON_Y)) {
+                startGame(GameMode.PLAYER_VS_CPU);
             }
+            return;
+        }
+
+        if (gameMode == GameMode.PLAYER_VS_CPU && !players.isBlackTurn()) {
             return;
         }
 
@@ -71,10 +84,15 @@ public class Main extends PApplet {
         text("Checkers", width / 2, 150);
 
         fill(180);
-        rect(BUTTON_X, BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+        rect(BUTTON_X, PLAYER_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
         fill(0);
         textSize(22);
-        text("Player vs Player", width / 2, BUTTON_Y + BUTTON_HEIGHT / 2);
+        text("Player vs Player", width / 2, PLAYER_BUTTON_Y + BUTTON_HEIGHT / 2);
+
+        fill(180);
+        rect(BUTTON_X, CPU_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+        fill(0);
+        text("Player vs CPU", width / 2, CPU_BUTTON_Y + BUTTON_HEIGHT / 2);
     }
 
     private void drawSelectedPiece() {
@@ -91,15 +109,15 @@ public class Main extends PApplet {
         noStroke();
     }
 
-    private boolean insidePlayButton(int x, int y) {
+    private boolean insideButton(int x, int y, int buttonY) {
         return x >= BUTTON_X && x <= BUTTON_X + BUTTON_WIDTH
-                && y >= BUTTON_Y && y <= BUTTON_Y + BUTTON_HEIGHT;
+                && y >= buttonY && y <= buttonY + BUTTON_HEIGHT;
     }
 
-    private void startPlayerGame() {
+    private void startGame(GameMode mode) {
         board.setBoard();
         players = new Players(new MoveRules());
-        gameMode = GameMode.PLAYER_VS_PLAYER;
+        gameMode = mode;
     }
 
     public static void main(String[] args) {
