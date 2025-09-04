@@ -41,6 +41,26 @@ public class MoveRules {
         return false;
     }
 
+    public boolean hasAnyLegalMove(Board board, boolean blackTurn) {
+        int[][] changes = {
+                {-2, -2}, {-2, 2}, {2, -2}, {2, 2},
+                {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+        };
+
+        for (int row = 0; row < Board.SIZE; row++) {
+            for (int col = 0; col < Board.SIZE; col++) {
+                for (int[] change : changes) {
+                    int toRow = row + change[0];
+                    int toCol = col + change[1];
+                    if (isValidMove(board, row, col, toRow, toCol, blackTurn)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean canCaptureFrom(Board board, int row, int col, boolean blackTurn) {
         if (!board.isInsideBoard(row, col)) {
             return false;

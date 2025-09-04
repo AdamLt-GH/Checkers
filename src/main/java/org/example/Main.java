@@ -14,11 +14,15 @@ public class Main extends PApplet {
     private static final int BUTTON_HEIGHT = 60;
     private static final int PLAYER_BUTTON_Y = 250;
     private static final int CPU_BUTTON_Y = 340;
+    private static final long GAME_OVER_TIME_MS = 4000;
 
     private Board board;
     private BoardRenderer boardRenderer;
     private Players players;
     private CpuPlayer cpuPlayer;
+    private GameStatus gameStatus;
+    private GameResult gameResult = GameResult.IN_PROGRESS;
+    private long returnToMenuAt;
     private GameMode gameMode = GameMode.MENU;
 
     public void settings() {
@@ -31,6 +35,7 @@ public class Main extends PApplet {
         boardRenderer = new BoardRenderer(board, pieceImages);
         players = new Players(new MoveRules());
         cpuPlayer = new CpuPlayer(new MoveRules());
+        gameStatus = new GameStatus(new MoveRules());
         noStroke();
     }
 
@@ -41,12 +46,19 @@ public class Main extends PApplet {
             return;
         }
 
-        if (gameMode == GameMode.PLAYER_VS_CPU && !players.isBlackTurn()) {
+        checkGameOver();
+        if (gameResult == GameResult.IN_PROGRESS
+                && gameMode == GameMode.PLAYER_VS_CPU && !players.isBlackTurn()) {
             cpuPlayer.takeTurn(board, players);
+            checkGameOver();
         }
         boardRenderer.draw(this);
         drawSelectedPiece();
-        drawHud();
+        if (gameResult == GameResult.IN_PROGRESS) {
+            drawHud();
+        } else {
+            drawGameOver();
+        }
     }
 
     public void mousePressed() {
@@ -56,6 +68,10 @@ public class Main extends PApplet {
             } else if (insideButton(mouseX, mouseY, CPU_BUTTON_Y)) {
                 startGame(GameMode.PLAYER_VS_CPU);
             }
+            return;
+        }
+
+        if (gameResult != GameResult.IN_PROGRESS) {
             return;
         }
 
@@ -133,6 +149,40 @@ public class Main extends PApplet {
         }
     }
 
+    private void drawGameOver() {
+        fill(0, 180);
+        rect(0, 0, width, height);
+
+        fill(255);
+        textAlign(CENTER, CENTER);
+        textSize(38);
+        text("Game Over", width / 2, height / 2 - 45);
+        textSize(24);
+        String winner = gameResult == GameResult.BLACK_WINS ? "Black wins" : "White wins";
+        text(winner, width / 2, height / 2);
+
+        long timeLeft = Math.max(0, returnToMenuAt - System.currentTimeMillis());
+        long secondsLeft = (timeLeft + 999) / 1000;
+        textSize(16);
+        text("Returning to menu in " + secondsLeft, width / 2, height / 2 + 42);
+
+        if (timeLeft == 0) {
+            gameMode = GameMode.MENU;
+            gameResult = GameResult.IN_PROGRESS;
+        }
+    }
+
+    private void checkGameOver() {
+        if (gameResult != GameResult.IN_PROGRESS) {
+            return;
+        }
+
+        gameResult = gameStatus.getResult(board, players.isBlackTurn());
+        if (gameResult != GameResult.IN_PROGRESS) {
+            returnToMenuAt = System.currentTimeMillis() + GAME_OVER_TIME_MS;
+        }
+    }
+
     private boolean insideButton(int x, int y, int buttonY) {
         return x >= BUTTON_X && x <= BUTTON_X + BUTTON_WIDTH
                 && y >= buttonY && y <= buttonY + BUTTON_HEIGHT;
@@ -141,6 +191,8 @@ public class Main extends PApplet {
     private void startGame(GameMode mode) {
         board.setBoard();
         players = new Players(new MoveRules());
+        gameResult = GameResult.IN_PROGRESS;
+        returnToMenuAt = 0;
         gameMode = mode;
     }
 
