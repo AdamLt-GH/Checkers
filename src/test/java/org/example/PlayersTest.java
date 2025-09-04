@@ -3,6 +3,8 @@ package org.example;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -97,6 +99,23 @@ class PlayersTest {
         assertFalse(players.selectPiece(board, 4, 7));
         assertEquals(4, players.getSelectedRow());
         assertEquals(3, players.getSelectedCol());
+    }
+
+    @Test
+    void invalidMoveMessageStaysActiveForTwoSeconds() {
+        AtomicLong time = new AtomicLong(1000);
+        players = new Players(new MoveRules(), time::get);
+
+        assertFalse(players.isInvalidMoveActive());
+
+        players.markInvalidMove();
+        assertTrue(players.isInvalidMoveActive());
+
+        time.set(2999);
+        assertTrue(players.isInvalidMoveActive());
+
+        time.set(3000);
+        assertFalse(players.isInvalidMoveActive());
     }
 
     private void clearBoard() {

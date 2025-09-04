@@ -46,6 +46,7 @@ public class Main extends PApplet {
         }
         boardRenderer.draw(this);
         drawSelectedPiece();
+        drawHud();
     }
 
     public void mousePressed() {
@@ -68,12 +69,18 @@ public class Main extends PApplet {
             return;
         }
 
+        boolean clickWorked;
         if (players.hasSelectedPiece()) {
-            if (!players.moveSelectedPiece(board, row, col)) {
-                players.selectPiece(board, row, col);
+            clickWorked = players.moveSelectedPiece(board, row, col);
+            if (!clickWorked) {
+                clickWorked = players.selectPiece(board, row, col);
             }
         } else {
-            players.selectPiece(board, row, col);
+            clickWorked = players.selectPiece(board, row, col);
+        }
+
+        if (!clickWorked) {
+            players.markInvalidMove();
         }
     }
 
@@ -107,6 +114,23 @@ public class Main extends PApplet {
         strokeWeight(4);
         rect(x + 3, y + 3, BoardRenderer.SQUARE_SIZE - 6, BoardRenderer.SQUARE_SIZE - 6);
         noStroke();
+    }
+
+    private void drawHud() {
+        int boxHeight = players.isInvalidMoveActive() ? 48 : 28;
+        fill(0, 160);
+        rect(6, 6, 125, boxHeight);
+
+        textAlign(LEFT, TOP);
+        textSize(14);
+        fill(255);
+        String turn = players.isBlackTurn() ? "Turn: Black" : "Turn: White";
+        text(turn, 12, 11);
+
+        if (players.isInvalidMoveActive()) {
+            fill(255, 90, 90);
+            text("Invalid move", 12, 29);
+        }
     }
 
     private boolean insideButton(int x, int y, int buttonY) {

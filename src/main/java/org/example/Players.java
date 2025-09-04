@@ -1,14 +1,25 @@
 package org.example;
 
+import java.util.function.LongSupplier;
+
 public class Players {
+    private static final long INVALID_MOVE_TIME_MS = 2000;
+
     private final MoveRules rules;
+    private final LongSupplier clock;
     private boolean blackTurn = true;
     private boolean continuingCapture;
+    private long invalidMoveUntil;
     private int selectedRow = -1;
     private int selectedCol = -1;
 
     public Players(MoveRules rules) {
+        this(rules, System::currentTimeMillis);
+    }
+
+    Players(MoveRules rules, LongSupplier clock) {
         this.rules = rules;
+        this.clock = clock;
     }
 
     public boolean selectPiece(Board board, int row, int col) {
@@ -62,6 +73,14 @@ public class Players {
 
     public boolean isBlackTurn() {
         return blackTurn;
+    }
+
+    public void markInvalidMove() {
+        invalidMoveUntil = clock.getAsLong() + INVALID_MOVE_TIME_MS;
+    }
+
+    public boolean isInvalidMoveActive() {
+        return clock.getAsLong() < invalidMoveUntil;
     }
 
     public boolean hasSelectedPiece() {
