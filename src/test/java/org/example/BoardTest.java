@@ -46,6 +46,17 @@ class BoardTest {
         assertThrows(IndexOutOfBoundsException.class, () -> board.getPieceAt(8, 0));
     }
 
+    @Test
+    void copiedBoardCanBeChangedOnItsOwn() {
+        Board board = new Board();
+        Board copy = board.copy();
+
+        copy.setPieceAt(0, 1, PieceType.EMPTY);
+
+        assertEquals(PieceType.BLACK, board.getPieceAt(0, 1));
+        assertEquals(PieceType.EMPTY, copy.getPieceAt(0, 1));
+    }
+
     private int countPieces(Board board, PieceType piece) {
         int count = 0;
         for (int row = 0; row < Board.SIZE; row++) {

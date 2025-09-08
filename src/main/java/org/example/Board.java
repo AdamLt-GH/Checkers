@@ -77,6 +77,16 @@ public class Board {
         return row >= 0 && row < SIZE && col >= 0 && col < SIZE;
     }
 
+    public Board copy() {
+        Board copy = new Board();
+        for (int row = 0; row < SIZE; row++) {
+            for (int col = 0; col < SIZE; col++) {
+                copy.squares[row][col] = squares[row][col];
+            }
+        }
+        return copy;
+    }
+
     private void checkPosition(int row, int col) {
         if (!isInsideBoard(row, col)) {
             throw new IndexOutOfBoundsException("Position is outside the board");
