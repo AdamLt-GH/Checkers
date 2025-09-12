@@ -6,6 +6,7 @@ import java.util.List;
 public class CheckersAI {
     private static final int PIECE_VALUE = 5;
     private static final int KING_VALUE = 10;
+    private static final int WIN_SCORE = 100000;
 
     private final MoveRules rules;
 
@@ -55,6 +56,62 @@ public class CheckersAI {
             }
         }
         return score;
+    }
+
+    public Move findBestMove(Board board, boolean aiBlack, int depth) {
+        List<Move> moves = generateMoves(board, aiBlack);
+        if (moves.isEmpty()) {
+            return null;
+        }
+
+        int searchDepth = Math.max(1, depth);
+        int bestScore = Integer.MIN_VALUE;
+        Move bestMove = moves.get(0);
+
+        for (Move move : moves) {
+            Board nextBoard = board.copy();
+            applyMove(nextBoard, move);
+            int score = minimax(nextBoard, searchDepth - 1, !aiBlack, aiBlack,
+                    Integer.MIN_VALUE, Integer.MAX_VALUE);
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
+        }
+        return bestMove;
+    }
+
+    private int minimax(Board board, int depth, boolean currentTurn, boolean aiBlack,
+                        int alpha, int beta) {
+        List<Move> moves = generateMoves(board, currentTurn);
+        if (moves.isEmpty()) {
+            return currentTurn == aiBlack ? -WIN_SCORE - depth : WIN_SCORE + depth;
+        }
+        if (depth == 0) {
+            return evaluate(board, aiBlack);
+        }
+
+        boolean maximizing = currentTurn == aiBlack;
+        int bestScore = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+
+        for (Move move : moves) {
+            Board nextBoard = board.copy();
+            applyMove(nextBoard, move);
+            int score = minimax(nextBoard, depth - 1, !currentTurn, aiBlack, alpha, beta);
+
+            if (maximizing) {
+                bestScore = Math.max(bestScore, score);
+                alpha = Math.max(alpha, bestScore);
+            } else {
+                bestScore = Math.min(bestScore, score);
+                beta = Math.min(beta, bestScore);
+            }
+
+            if (beta <= alpha) {
+                break;
+            }
+        }
+        return bestScore;
     }
 
     private void addRegularMoves(Board board, int row, int col, boolean blackTurn,

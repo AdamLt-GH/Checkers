@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CheckersAITest {
@@ -66,6 +67,55 @@ class CheckersAITest {
 
         assertTrue(blackScore > 0);
         assertEquals(-blackScore, whiteScore);
+    }
+
+    @Test
+    void searchReturnsTheOnlyLegalMove() {
+        board.setPieceAt(2, 0, PieceType.BLACK);
+
+        CheckersAI.Move move = ai.findBestMove(board, true, 3);
+
+        assertEquals(new CheckersAI.Step(2, 0, 3, 1), move.steps().get(0));
+    }
+
+    @Test
+    void searchPrefersCapturingAKing() {
+        board.setPieceAt(4, 3, PieceType.BLACK_KING);
+        board.setPieceAt(3, 2, PieceType.WHITE);
+        board.setPieceAt(3, 4, PieceType.WHITE_KING);
+
+        CheckersAI.Move move = ai.findBestMove(board, true, 1);
+
+        assertEquals(new CheckersAI.Step(4, 3, 2, 5), move.steps().get(0));
+    }
+
+    @Test
+    void searchLooksAheadToAvoidBeingCaptured() {
+        board.setPieceAt(2, 3, PieceType.BLACK);
+        board.setPieceAt(4, 1, PieceType.WHITE);
+
+        CheckersAI.Move move = ai.findBestMove(board, true, 2);
+
+        assertEquals(new CheckersAI.Step(2, 3, 3, 4), move.steps().get(0));
+    }
+
+    @Test
+    void searchDoesNotChangeTheRealBoard() {
+        board.setPieceAt(2, 1, PieceType.BLACK);
+        Board beforeSearch = board.copy();
+
+        ai.findBestMove(board, true, 3);
+
+        for (int row = 0; row < Board.SIZE; row++) {
+            for (int col = 0; col < Board.SIZE; col++) {
+                assertEquals(beforeSearch.getPieceAt(row, col), board.getPieceAt(row, col));
+            }
+        }
+    }
+
+    @Test
+    void searchReturnsNothingWhenThereAreNoMoves() {
+        assertNull(ai.findBestMove(board, true, 3));
     }
 
     private void clearBoard() {
