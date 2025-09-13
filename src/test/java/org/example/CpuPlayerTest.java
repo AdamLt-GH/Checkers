@@ -30,7 +30,10 @@ class CpuPlayerTest {
         assertTrue(cpu.takeTurn(board, players));
 
         assertTrue(players.isBlackTurn());
-        assertEquals(PieceType.WHITE, board.getPieceAt(4, 1));
+        assertEquals(PieceType.EMPTY, board.getPieceAt(5, 2));
+        boolean movedLeft = board.getPieceAt(4, 1) == PieceType.WHITE;
+        boolean movedRight = board.getPieceAt(4, 3) == PieceType.WHITE;
+        assertTrue(movedLeft || movedRight);
     }
 
     @Test
@@ -66,6 +69,25 @@ class CpuPlayerTest {
 
         assertFalse(cpu.takeTurn(board, players));
         assertEquals(PieceType.WHITE, board.getPieceAt(5, 2));
+    }
+
+    @Test
+    void cpuLooksAheadInsteadOfTakingTheFirstMove() {
+        cpu.setDifficulty(CpuDifficulty.EASY);
+        board.setPieceAt(5, 4, PieceType.WHITE);
+        board.setPieceAt(3, 2, PieceType.BLACK);
+
+        assertTrue(cpu.takeTurn(board, players));
+
+        assertEquals(PieceType.EMPTY, board.getPieceAt(4, 3));
+        assertEquals(PieceType.WHITE, board.getPieceAt(4, 5));
+    }
+
+    @Test
+    void difficultiesUseDifferentSearchDepths() {
+        assertEquals(2, CpuDifficulty.EASY.getSearchDepth());
+        assertEquals(4, CpuDifficulty.MEDIUM.getSearchDepth());
+        assertEquals(6, CpuDifficulty.HARD.getSearchDepth());
     }
 
     private void moveToWhiteTurn() {

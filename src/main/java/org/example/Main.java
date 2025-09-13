@@ -11,9 +11,11 @@ public class Main extends PApplet {
 
     private static final int BUTTON_X = 180;
     private static final int BUTTON_WIDTH = 280;
-    private static final int BUTTON_HEIGHT = 60;
-    private static final int PLAYER_BUTTON_Y = 250;
-    private static final int CPU_BUTTON_Y = 340;
+    private static final int BUTTON_HEIGHT = 55;
+    private static final int PLAYER_BUTTON_Y = 170;
+    private static final int EASY_BUTTON_Y = 250;
+    private static final int MEDIUM_BUTTON_Y = 330;
+    private static final int HARD_BUTTON_Y = 410;
     private static final long GAME_OVER_TIME_MS = 4000;
 
     private Board board;
@@ -65,8 +67,12 @@ public class Main extends PApplet {
         if (gameMode == GameMode.MENU) {
             if (insideButton(mouseX, mouseY, PLAYER_BUTTON_Y)) {
                 startGame(GameMode.PLAYER_VS_PLAYER);
-            } else if (insideButton(mouseX, mouseY, CPU_BUTTON_Y)) {
-                startGame(GameMode.PLAYER_VS_CPU);
+            } else if (insideButton(mouseX, mouseY, EASY_BUTTON_Y)) {
+                startCpuGame(CpuDifficulty.EASY);
+            } else if (insideButton(mouseX, mouseY, MEDIUM_BUTTON_Y)) {
+                startCpuGame(CpuDifficulty.MEDIUM);
+            } else if (insideButton(mouseX, mouseY, HARD_BUTTON_Y)) {
+                startCpuGame(CpuDifficulty.HARD);
             }
             return;
         }
@@ -104,18 +110,28 @@ public class Main extends PApplet {
         fill(0);
         textAlign(CENTER, CENTER);
         textSize(42);
-        text("Checkers", width / 2, 150);
+        text("Checkers", width / 2, 90);
 
         fill(180);
         rect(BUTTON_X, PLAYER_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
         fill(0);
-        textSize(22);
+        textSize(20);
         text("Player vs Player", width / 2, PLAYER_BUTTON_Y + BUTTON_HEIGHT / 2);
 
         fill(180);
-        rect(BUTTON_X, CPU_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+        rect(BUTTON_X, EASY_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
         fill(0);
-        text("Player vs CPU", width / 2, CPU_BUTTON_Y + BUTTON_HEIGHT / 2);
+        text("CPU Easy", width / 2, EASY_BUTTON_Y + BUTTON_HEIGHT / 2);
+
+        fill(180);
+        rect(BUTTON_X, MEDIUM_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+        fill(0);
+        text("CPU Medium", width / 2, MEDIUM_BUTTON_Y + BUTTON_HEIGHT / 2);
+
+        fill(180);
+        rect(BUTTON_X, HARD_BUTTON_Y, BUTTON_WIDTH, BUTTON_HEIGHT);
+        fill(0);
+        text("CPU Hard", width / 2, HARD_BUTTON_Y + BUTTON_HEIGHT / 2);
     }
 
     private void drawSelectedPiece() {
@@ -194,6 +210,11 @@ public class Main extends PApplet {
         gameResult = GameResult.IN_PROGRESS;
         returnToMenuAt = 0;
         gameMode = mode;
+    }
+
+    private void startCpuGame(CpuDifficulty difficulty) {
+        cpuPlayer.setDifficulty(difficulty);
+        startGame(GameMode.PLAYER_VS_CPU);
     }
 
     public static void main(String[] args) {
